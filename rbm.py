@@ -30,7 +30,7 @@ class RBM:
 
       self.weights = self.weights + diff
 
-  #Performs the gibbs sample on the data
+  #Performs gibbs sampling on the data
   #Returns a tuple (Visible State, Hidden State)
   def regenerate(self, data, samples = 20):
     data = self.__prepare_data(data)
