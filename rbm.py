@@ -12,7 +12,7 @@ class RBM:
     self.weights = np.random.random((visible+1, hidden+1))
 
 
-  def train(self, data, epochs = float('inf'), error = 0.0000001):
+  def train(self, data, epochs = 9999):
     epoch = 0
    
 
@@ -49,14 +49,6 @@ class RBM:
       cur_error = np.sum( data - v_state ) ** 2
 
       self.weights = self.weights + diff
-      
-      print cur_error
-
-      if cur_error < error:
-        break
-
-      
-
       
   def __logistic(self, x):
     return 1/(1 + np.exp(-x))
