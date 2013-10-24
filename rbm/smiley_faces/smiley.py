@@ -1,5 +1,3 @@
-import sys
-
 import numpy as np
 import Image as pil
 from rbm import RBM
