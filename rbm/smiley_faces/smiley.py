@@ -1,6 +1,5 @@
 import sys
 
-sys.path.append('/Users/freefrag/RBM/')
 import numpy as np
 import Image as pil
 from rbm import RBM
