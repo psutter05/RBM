@@ -12,51 +12,60 @@ class RBM:
     self.weights = np.random.random((visible+1, hidden+1))
 
 
-  def train(self, data, epochs = float('inf'), error = 0.0000001):
-    epoch = 0
-   
-
+  #Trains the machine on the samples for the given number of epochs
+  def train(self, data, epochs = 9999):
     data = np.array(data)
     num_examples = data.shape[0]
-    #insert the bias neurons into the data
-    data = np.insert(data, 0, 1, axis = 1)
-    data = np.insert(data, 0, 1, axis = 0)
-    while epoch < epochs:
-      epoch = epoch + 1
-      
-      #Calculate the state of the hidden neurons given the visible neurons
-      h_act1 = np.dot(data, self.weights)
-      h_prob1 = self.__logistic(h_act1)
-      h_state1 = h_prob1 > random.random()
+    for epoch in range(0,epochs):
+      (v_state, h_state) = self.regenerate(data, 1)
+      #Compute the associations between the data and the hidden neurons it set
+      pos_ass = self.__compute_associations(data, h_state)
 
-      pos_ass = np.dot(data.T, h_state1)
-      
-      #Regenerate the visible neurons from the hidden ones
-      v_act = np.dot(h_state1, self.weights.T)
-      v_prob = self.__logistic(v_act)
-      v_state = v_prob > random.random()
-
-      v_state[0,:] = v_state[:,0] = 1
-      
-      #Again, calculate the hidden neurons from visible
-      h_act2 = np.dot(v_state, self.weights)
-      h_prob2 = self.__logistic(h_act2)
-      h_state2 =  h_prob2 > np.random.random(h_prob2.shape)
-
-      neg_ass = np.dot(v_state.T, h_state2.astype(int))
+      (_, h_state) = self.regenerate(v_state, 1)
+      #Compute the associations between the regenerated data and the hidden neurons it set
+      neg_ass = self.__compute_associations(v_state, h_state)
 
       diff = (self.learning_rate / num_examples) * (pos_ass - neg_ass)
       cur_error = np.sum( data - v_state ) ** 2
 
       self.weights = self.weights + diff
-      
-      print cur_error
 
-      if cur_error < error:
-        break
+  #Performs gibbs sampling on the data
+  #Returns a tuple (Visible State, Hidden State)
+  def regenerate(self, data, samples = 20):
+    data = self.__prepare_data(data)
 
-      
+    v_state = data
+    for sample in range(0, samples):
+      #Calculate the state of the hidden neurons given the visible neurons
+      h_act = np.dot(data, self.weights)
+      h_prob = self.__logistic(h_act)
+      h_state = (h_prob > random.random()).astype(int)
 
-      
+      #Regenerate the visible neurons from the hidden ones
+      v_act = np.dot(h_state, self.weights.T)
+      v_prob = self.__logistic(v_act)
+      v_state = (v_prob > random.random()).astype(int)
+
+      #Set the bias neurons
+      v_state[:,1] = 1
+
+    #Delete the row containing bias neurons
+    v_state = np.delete(v_state, 0, axis = 1)
+    h_state = np.delete(h_state, 0, axis = 1)
+    return (v_state, h_state)
+
+  #Returns the neuron associations
+  def __compute_associations(self, visible, hidden):
+    visible = np.insert(visible, 0, 1, axis=1)
+    hidden  = np.insert(hidden, 0, 1, axis=1)
+    return np.dot(visible.T, hidden)
+
+  #Transforms the 2D array to a numpy matrix and add an additional row and column for the bias neurons
+  def __prepare_data(self, data):
+    data = np.array(data)
+    data = np.insert(data, 0, 1, axis = 1)
+    return data
+
   def __logistic(self, x):
     return 1/(1 + np.exp(-x))
