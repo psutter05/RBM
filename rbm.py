@@ -57,7 +57,7 @@ class RBM:
     v_state = data
     for sample in range(0, samples):
       #Calculate the state of the hidden neurons given the visible neurons
-      h_act = np.dot(data, self.weights)
+      h_act = np.dot(v_state, self.weights)
       h_prob = self.__logistic(h_act)
       h_state = (h_prob > np.random.random(h_prob.shape)).astype(int)
       h_state[:,0] = 1
@@ -67,8 +67,8 @@ class RBM:
       v_prob = self.__logistic(v_act)
       v_state = (v_prob > np.random.random(v_prob.shape)).astype(int)
 
-     # #Set the bias neurons
-     # v_state[:,0] = 1
+      #Set the bias neurons
+      v_state[:,0] = 1
 
     #Delete the row containing bias neurons
     v_state = np.delete(v_state, 0, axis = 1)
