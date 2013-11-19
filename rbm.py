@@ -34,12 +34,20 @@ class RBM:
     for epoch in xrange(0, epochs):
       total_gradient = np.zeros(self.weights.shape)
       total_error = 0
+      i = 0
       for batch in data: 
+        i+=1
         gradient, vb, hb, error = self.run_batch(batch)
         total_gradient += gradient
         total_error += error
         hg += hb
         vg += vb
+        velocity = momentum * velocity + gradient
+        self.weights *= 0.9998
+        self.weights += velocity * self.learning_rate
+        self.hidden_bias += hb
+        self.visible_bias += vb
+        print "after bach {0}, error {1}".format(i, error)
       total_gradient /= float(batches)
       total_error /= float(batches)
       vg/=float(batches)
@@ -48,15 +56,12 @@ class RBM:
       print "after epoch {0}, average error: {1}".format(epoch, error)
       
 
-      if epoch > 10:
+      if epoch >= 1:
         momentum = 0.5
-      if epoch > 20:
+      if epoch >= 2:
+        momentum = 0.7
+      if epoch >= 6:
         momentum = 0.9
-      velocity = momentum * velocity + total_gradient
-      self.weights *= 0.9998
-      self.weights += velocity * self.learning_rate
-      self.hidden_bias += hg
-      self.visible_bias += vg
 
 
   def run_batch(self, v_prob1):
