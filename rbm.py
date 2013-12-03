@@ -6,7 +6,7 @@ class RBM:
     self.hidden = hidden
     self.learning_rate = learning_rate
 
-    #initialize the weight with an additional row and column for the bias weights 
+    #initialize the weight with an additional row and column for the bias weights
     self.weights = np.random.normal(0,0.01,(visible, hidden))
 
     #set the hidden bias weights to 0
@@ -14,9 +14,9 @@ class RBM:
     #set the visible bias weights to the approximate probability of a neuron being activated in the training data
     self.visible_bias = np.tile(1,visible)
 
-  # Trains the RBM 
+  # Trains the RBM
   # If batch_size doesn't divide data then the last
-  # data % batch_size elements are 
+  # data % batch_size elements are
   def train(self, data, epochs, batch_size):
     data = self.__prepare_data(data)
     assert len(data.shape) == 2 # Data should come as an array of arrays
@@ -35,7 +35,7 @@ class RBM:
       total_gradient = np.zeros(self.weights.shape)
       total_error = 0
       i = 0
-      for batch in data: 
+      for batch in data:
         i+=1
         gradient, vb, hb, error = self.run_batch(batch)
         total_gradient += gradient
@@ -47,14 +47,14 @@ class RBM:
         self.weights += velocity * self.learning_rate
         self.hidden_bias += hb
         self.visible_bias += vb
-        print "after bach {0}, error {1}".format(i, error)
+        print "after batch {0}, error {1}".format(i, error)
       total_gradient /= float(batches)
       total_error /= float(batches)
       vg/=float(batches)
       hg/=float(batches)
 
       print "after epoch {0}, average error: {1}".format(epoch, error)
-      
+
 
       if epoch >= 1:
         momentum = 0.5
@@ -90,10 +90,10 @@ class RBM:
     weight_gradient =  diff / float(batch_size)
     error = np.square(v_prob1 - v_prob2).sum() / float(batch_size)
 
-    vbias_gradient = (v_prob1 - v_prob2).mean(axis=0) * 0.1
-    hbias_gradient = (h_prob1 - h_prob2).mean(axis=0) * 0.1
+    vbias_gradient = (v_prob1 - v_prob2).mean(axis=0) * self.learning_rate
+    hbias_gradient = (h_prob1 - h_prob2).mean(axis=0) * self.learning_rate
     #hbias_gradient = 0.01 - (h_state1).mean(axis=0)
-    
+
     return weight_gradient,vbias_gradient, hbias_gradient, error
 
   #Performs gibbs sampling on the data
@@ -105,7 +105,7 @@ class RBM:
       vs, v_state = self.regenerate_visible(h_state)
 
     return (vs, h_state)
-  
+
   # Given the visible neurons this function regenerates the hidden neurons
   # Assumes that the first value in each row is a bias
   def regenerate_hidden(self, visible):
