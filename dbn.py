@@ -6,6 +6,7 @@ class DBN:
     self._rbms = []
     self.learning_rate = learning_rate
     self.number_labels = number_labels
+    self.number_inputs = config[0]
     self.number_layers = len(config)-1
 
     for i in xrange(0, self.number_layers):
@@ -108,3 +109,11 @@ class DBN:
     activations = np.exp(data)
     activations = activations / activations.sum(axis = 1)[:,np.newaxis]
     return activations
+
+  def get_topology(self):
+    topology = []
+    topology.append(self.number_inputs)
+    for i in xrange(0, self.number_layers):
+      topology.append(self._rbms[i].hidden)
+    topology.append(self.number_labels)
+    return topology
