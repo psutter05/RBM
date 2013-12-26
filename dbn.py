@@ -3,6 +3,7 @@ from rbm import RBM
 
 class DBN:
   def __init__(self, config, number_labels, learning_rate = 0.1):
+    print config
     self._rbms = []
     self.learning_rate = learning_rate
     self.number_labels = number_labels
@@ -91,10 +92,14 @@ class DBN:
 
   def classify(self, data, samples = 1):
     data = self.sample(data, self.number_layers -1, samples)
-    associative_rbm = self._rbms[self.number_layers-1]
 
-    (_,last_coding) = associative_rbm.regenerate(data, samples)
-    activations = np.dot(last_coding, self._label_weights)
+    if (self.number_layers != 0):
+      associative_rbm = self._rbms[self.number_layers-1]
+      (_,last_coding) = associative_rbm.regenerate(data, samples)
+      activations = np.dot(last_coding, self._label_weights)
+    else:
+      activations = np.dot(data, self._label_weights)
+
     return self.softmax(activations)
 
 
