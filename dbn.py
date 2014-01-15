@@ -86,7 +86,7 @@ class DBN:
       biases.append(error_gradient.mean(axis=0))
       i = i + 1
 
-    mean_class_error = 1 - (target_labels * label_probs).mean() * 10
+    mean_class_error = 1 - (target_labels * label_probs).mean() * self.number_labels
     return gradients[::-1], biases[::-1], mean_class_error
 
 

@@ -19,6 +19,9 @@ class RBM:
   # data % batch_size elements are
   def train(self, data, epochs, batch_size):
     data = self.__prepare_data(data)
+    vb = data.mean(axis = 0)
+    vb = 1 / (1 - vb)
+    self.visible_bias = np.log(vb)
     assert len(data.shape) == 2 # Data should come as an array of arrays
 
     (num_examples, data_size) = data.shape
