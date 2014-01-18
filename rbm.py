@@ -20,6 +20,8 @@ class RBM:
   def train(self, data, epochs, batch_size):
     data = self.__prepare_data(data)
     vb = data.mean(axis = 0)
+    if (vb == 1):
+	vb = 0.999999
     vb = 1 / (1 - vb)
     self.visible_bias = np.log(vb)
     assert len(data.shape) == 2 # Data should come as an array of arrays
