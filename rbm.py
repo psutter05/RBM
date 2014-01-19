@@ -1,6 +1,13 @@
 import numpy as np
 
+# The Class for the Restricted Boltzmann Machine implementation
+# Is used by the Deep Belief Network
 class RBM:
+
+  # Constructor
+  # visible - Number of visible units
+  # hidden - Number of hidden units
+  # learning_rate - The speed at which it learns
   def __init__(self, visible, hidden, learning_rate = 0.1):
     self.visible = visible
     self.hidden = hidden
@@ -15,52 +22,76 @@ class RBM:
     self.visible_bias = np.tile(1,visible)
 
   # Trains the RBM
-  # If batch_size doesn't divide data then the last
-  # data % batch_size elements are
+  # data - The training data
+  # epochs - The number of epochs to train the RBM
+  # batch_size - The size of the batches to be used
   def train(self, data, epochs, batch_size):
+    # Prepares the data into NumPy arrays
     data = self.__prepare_data(data)
+
+    # Calculates the visible bias
     vb = data.mean(axis = 0)
+    # Make sure no Division By Zero occurs
     if (vb == 1):
-	vb = 0.999999
+      vb = 0.999999
     vb = 1 / (1 - vb)
     self.visible_bias = np.log(vb)
-    assert len(data.shape) == 2 # Data should come as an array of arrays
 
+    # Data should come as an array of arrays
+    assert len(data.shape) == 2
+
+    # Gets the shape of the data and calculates the batches
+    # Puts the data into batches
     (num_examples, data_size) = data.shape
     batches = num_examples / batch_size
     # This works as the result of the division is an integer
     data = data[0:batch_size * batches]
     data = data.reshape((batches, batch_size, data_size))
 
+    # Prepares the training values
     momentum = 0.3
     velocity = np.zeros(self.weights.shape)
+    # The gradients
     hg = np.zeros(self.hidden_bias.shape)
     vg = np.zeros(self.visible_bias.shape)
+    # For each epoch
     for epoch in xrange(0, epochs):
+      # Calculates the initial gradients
       total_gradient = np.zeros(self.weights.shape)
       total_error = 0
       i = 0
+      # Loops through each batch in the data
       for batch in data:
         i+=1
+        # Runs a batch through the RBM
         gradient, vb, hb, error = self.run_batch(batch)
+        # Calculates the gradients and errors
         total_gradient += gradient
         total_error += error
         hg += hb
         vg += vb
+        # Adjusts the velocity
         velocity = momentum * velocity + gradient
+        # Adjusts the weights
         self.weights *= 0.9998
         self.weights += velocity * self.learning_rate
+        # Adjusts the hidden bias
         self.hidden_bias += hb
         self.visible_bias += vb
+        # Prints a status message
         print "after batch {0}, error {1}".format(i, error)
+      # Calculates the gradient
       total_gradient /= float(batches)
+      # Calculates the error
       total_error /= float(batches)
+      # Adjusts the gradients
       vg/=float(batches)
       hg/=float(batches)
 
+      # Status message
       print "after epoch {0}, average error: {1}".format(epoch, error)
 
-
+      # Increases the momentum
       if epoch >= 1:
         momentum = 0.5
       if epoch >= 2:
